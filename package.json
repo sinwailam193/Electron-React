@@ -1,0 +1,44 @@
+{
+  "name": "electron-quick-start",
+  "version": "1.0.0",
+  "description": "A minimal Electron application",
+  "main": "main.js",
+  "scripts": {
+    "start": "webpack --watch & electron main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/electron/electron-quick-start.git"
+  },
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial"
+  ],
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/electron/electron-quick-start/issues"
+  },
+  "homepage": "https://github.com/electron/electron-quick-start#readme",
+  "devDependencies": {
+    "electron-prebuilt": "^1.2.0",
+    "electron-reload": "^0.2.0",
+    "babel-preset-stage-1": "^6.5.0",
+    "babel-core": "^6.9.0",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "webpack": "^1.13.1"
+  },
+  "dependencies": {
+    "axios": "^0.9.1",
+    "react": "^15.1.0",
+    "react-dom": "^15.1.0",
+    "classnames": "^2.2.3",
+    "react-sound": "^0.4.0",
+    "soundmanager2": "^2.97.20150601-a",
+    "react-autocomplete": "^1.0.0-rc2"
+  }
+}
