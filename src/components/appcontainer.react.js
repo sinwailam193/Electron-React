@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Sound from 'react-sound';
+import Search from './search.react';
+import Details from './details.react';
+import Player from './player.react';
 import { fetch_playlist, set_song } from '../actions/fetch.action';
 import { client_id } from '../../config';
 
@@ -12,7 +15,8 @@ class AppContainer extends Component {
       elapsed: '00:00',
       total: '00:00',
       position: 0,
-      playFromPosition: 0
+      playFromPosition: 0,
+      autoCompleteValue: ''
     };
   }
 
@@ -58,15 +62,64 @@ class AppContainer extends Component {
     return (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
   };
 
+  _handleSelect = (value, item) => {
+    this.setState({
+      autoCompleteValue: value,
+      track: item
+    });
+  };
+
+  _handleChange = (event, value) => {
+    this.setState({
+      autoCompleteValue: event.target.value
+    });
+    this.props.fetch_playlist(value);
+  };
+
+  _togglePlay = () => {
+    if(this.state.playStatus === Sound.status.PLAYING){
+      this.setState({playStatus: Sound.status.PAUSED})
+    } else {
+      this.setState({playStatus: Sound.status.PLAYING})
+    }
+  };
+
+  _stop = () => {
+    this.setState({playStatus: Sound.status.STOPPED});
+  };
+
+  _forward = () => {
+    this.setState({playFromPosition: this.state.playFromPosition+=1000*10});
+  };
+
+  _backward = () => {
+    this.setState({playFromPosition: this.state.playFromPosition-=1000*10});
+  };
+
   render() {
     return (
       <div className="scotch_music">
+        <Search
+          autoCompleteValue={this.state.autoCompleteValue}
+          tracks={this.props.tracks}
+          handleSelect={this._handleSelect}
+          handleChange={this._handleChange}
+        />
+        <Details title={(this.props.song ? this.props.song.title : "")}/>
+        <Player
+          togglePlay={this._togglePlay}
+          stop={this._stop}
+          playStatus={this.state.playStatus}
+          forward={this._forward}
+          backward={this._backward}
+          random={this._randomSong}
+        />
         <Sound
-          url={this.prepareUrl(this.props.track.stream_url)}
+          url={this._prepareUrl((this.props.song ? this.props.song.stream_url : ''))}
           playStatus={this.state.playStatus}
           onPlaying={this._handleSongPlaying}
           playFromPosition={this.state.playFromPosition}
-          onFinishedPlaying={this.handleSongFinished}/>
+          onFinishedPlaying={this.handleSongFinished}
         />
       </div>
     );

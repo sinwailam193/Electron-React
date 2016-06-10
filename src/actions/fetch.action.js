@@ -4,8 +4,8 @@ import { client_id, url } from '../../config';
 export const PLAYLIST = "PLAYLIST";
 export const SETSONG = "SETSONG";
 
-export function fetch_playlist(id) {
-  const request = Axios.get(`${url}?client_id=${client_id}`);
+export function fetch_playlist(value) {
+  const request = (value ?  Axios.get(`${url}?client_id=${client_id}&q=${value}`) : Axios.get(`${url}?client_id=${client_id}`));
   return {
     type: PLAYLIST,
     payload: request
