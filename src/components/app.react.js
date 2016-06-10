@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import Search from './search.react';
+import Details from './details.react';
+import Player from './player.react';
 
 export default class App extends Component {
 
@@ -8,7 +11,11 @@ export default class App extends Component {
 
   render() {
     return (
-      <h1>Hello World</h1>
+      <div>
+        <Search />
+        <Details title={"Track Title"} />
+        <Player />
+      </div>
     );
   }
 }
