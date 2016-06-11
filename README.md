@@ -7,3 +7,4 @@ If you do not want to download electron, this is the web version
 Simple:
 1. npm install
 2. npm start
+3. In browser, go to http://localhost:8080
