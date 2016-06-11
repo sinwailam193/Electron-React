@@ -4,8 +4,7 @@
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
-    "start": "node server.js",
-    "postinstall": "node_modules/webpack/bin/webpack.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
