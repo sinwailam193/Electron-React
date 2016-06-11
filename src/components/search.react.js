@@ -19,7 +19,6 @@ export default class Search extends Component {
         cursor: 'default'
       }
     };
-
     return (
       <div key={item.id} style={isHighlighted ? listStyles.highlightedItem : listStyles.item} id={item.id}>{item.title}</div>
     );
@@ -32,6 +31,7 @@ export default class Search extends Component {
           ref="autocomplete"
           inputProps={{title: "Title"}}
           value={this.props.autoCompleteValue}
+          items={this.props.tracks}
           getItemValue={(item) => item.title}
           onSelect={this.props.handleSelect}
           onChange={this.props.handleChange}

@@ -1,26 +1,167 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import Sound from 'react-sound';
 import Search from './search.react';
 import Details from './details.react';
 import Player from './player.react';
 import Progress from './progress.react';
 import Footer from './footer.react';
-import AppContainer from './appcontainer.react';
+import { fetch_playlist, set_song } from '../actions/fetch.action';
+import { client_id } from '../../config';
 
-export default class App extends Component {
-
+class App extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      playStatus: Sound.status.STOPPED,
+      elapsed: '00:00',
+      total: '00:00',
+      position: 0,
+      playFromPosition: 0,
+      autoCompleteValue: ''
+    };
   }
 
+  componentDidMount() {
+    this.props.fetch_playlist()
+      .then(() => {
+        this._randomSong();
+      });
+  }
+
+  _randomSong = () => {
+    const tracksLength = this.props.tracks.length;
+    const randomNumber = Math.floor((Math.random() * tracksLength) + 1);
+    this.props.set_song(this.props.tracks[randomNumber]);
+  }
+
+  _prepareUrl = (url) => {
+    return `${url}?client_id=${client_id}`;
+  };
+
+  _handleSongPlaying = (audio) => {
+    this.setState({
+      elapsed: this._formatMilliseconds(audio.position),
+      total: this._formatMilliseconds(audio.duration),
+      position: audio.position / audio.duration
+    });
+  };
+
+  _handleSongFinished = () => {
+    this._randomSong();
+  };
+
+  _formatMilliseconds = (milliseconds) => {
+    let hours = Math.floor(milliseconds / 3600000);
+    milliseconds %= 3600000;
+
+    let minutes = Math.floor(milliseconds / 60000);
+    milliseconds %= 60000;
+
+    let seconds = Math.floor(milliseconds / 1000);
+    milliseconds = Math.floor(milliseconds % 1000);
+
+    return (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+  };
+
+  _handleSelect = (value, item) => {
+    this.setState({
+      autoCompleteValue: value,
+    });
+    this.props.set_song(item);
+  };
+
+  _handleChange = (event, value) => {
+    this.setState({
+      autoCompleteValue: event.target.value
+    });
+    this.props.fetch_playlist(value);
+  };
+
+  _togglePlay = () => {
+    if(this.state.playStatus === Sound.status.PLAYING){
+      this.setState({
+        playStatus: Sound.status.PAUSED
+      });
+    } else {
+      this.setState({
+        playStatus: Sound.status.PLAYING
+      });
+    }
+  };
+
+  _stop = () => {
+    this.setState({
+      playStatus: Sound.status.STOPPED
+    });
+  };
+
+  _forward = () => {
+    this.setState({
+      playFromPosition: this.state.playFromPosition += 1000*10
+    });
+  };
+
+  _backward = () => {
+    this.setState({
+      playFromPosition: this.state.playFromPosition -= 1000*10
+    });
+  };
+
+  _xlArtwork = (url) => {
+    return url.replace(/large/, 't500x500');
+  };
+
   render() {
+    const scotchStyle = {
+      width: '500px',
+      height: '478px',
+      backgroundImage: `linear-gradient(
+      rgba(0, 0, 0, 0.7),
+      rgba(0, 0, 0, 0.7)
+    ), url(${this._xlArtwork((this.props.song ? this.props.song.artwork_url : ''))})`
+    };
+
     return (
-      <div>
-        <Search />
-        <Details title={"Track Title"} />
-        <Player />
-        <Progress position={"0.3"} elapsed={"00:00"} total={"0:40"} />
+      <div className="scotch_music" style={scotchStyle}>
+        <Search
+          autoCompleteValue={this.state.autoCompleteValue}
+          tracks={this.props.tracks}
+          handleSelect={this._handleSelect}
+          handleChange={this._handleChange}
+        />
+        <Details title={(this.props.song ? this.props.song.title : "")}/>
+        <Sound
+          url={this._prepareUrl((this.props.song ? this.props.song.stream_url : ''))}
+          playStatus={this.state.playStatus}
+          onPlaying={this._handleSongPlaying}
+          playFromPosition={this.state.playFromPosition}
+          onFinishedPlaying={this.handleSongFinished}
+        />
+        <Player
+          togglePlay={this._togglePlay}
+          stop={this._stop}
+          playStatus={this.state.playStatus}
+          forward={this._forward}
+          backward={this._backward}
+          random={this._randomSong}
+        />
+        <Progress
+          elapsed={this.state.elapsed}
+          total={this.state.total}
+          position={this.state.position}
+        />
         <Footer />
       </div>
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    tracks: state.tracks.tracks,
+    song: state.tracks.song
+  };
+}
+
+export default connect(mapStateToProps, {fetch_playlist, set_song})(App);
